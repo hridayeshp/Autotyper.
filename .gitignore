@@ -1,0 +1,6 @@
+.DS_Store
+.autotyper.lock
+.venv/
+__pycache__/
+*.pyc
+tempCodeRunnerFile.py

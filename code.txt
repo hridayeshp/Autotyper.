@@ -1,0 +1,90 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Edge {
+    int src, dest, weight;
+};
+
+// Comparator to sort edges:
+// 1. By Weight (ascending)
+// 2. If weights are equal, by Source node (ascending) to match expected output order
+bool compareEdges(const Edge& a, const Edge& b) {
+    if (a.weight != b.weight)
+        return a.weight < b.weight;
+    if (a.src != b.src)
+        return a.src < b.src;
+    return a.dest < b.dest;
+}
+
+struct DSU {
+    vector<int> parent;
+    
+    DSU(int n) {
+        parent.resize(n + 1);
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int i) {
+        if (parent[i] == i)
+            return i;
+        return parent[i] = find(parent[i]);
+    }
+
+    void unite(int i, int j) {
+        int root_i = find(i);
+        int root_j = find(j);
+        if (root_i != root_j) {
+            parent[root_i] = root_j;
+        }
+    }
+};
+
+int main() {
+    int E;
+    // Check if input exists
+    if (!(cin >> E)) return 0;
+
+    vector<Edge> edges;
+    int max_node = 0;
+
+    for (int i = 0; i < E; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        
+        // Store edges such that src < dest to ensure consistent printing format
+        if (u > v) swap(u, v);
+        
+        edges.push_back({u, v, w});
+        max_node = max(max_node, v);
+    }
+
+    // Sort edges
+    sort(edges.begin(), edges.end(), compareEdges);
+
+    DSU dsu(max_node);
+    long long total_min_cost = 0;
+
+    // Process edges
+    for (const auto& edge : edges) {
+        int u = edge.src;
+        int v = edge.dest;
+        
+        if (dsu.find(u) != dsu.find(v)) {
+            dsu.unite(u, v);
+            total_min_cost += edge.weight;
+            
+            // Strict output format: U--V==W
+            cout << u << "--" << v << "==" << edge.weight << endl;
+        }
+    }
+
+    // Final total cost on a new line
+    cout << total_min_cost << endl;
+
+    return 0;
+}
